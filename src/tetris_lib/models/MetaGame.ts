@@ -30,15 +30,16 @@ export function buildTetrisState(pieces: PositionedPiece[]): Game {
 
     // TODO consistent queue
     const queue = PieceQueue.create(5);
-    const nextPiece = initializePiece(PieceQueue.getNext(queue));
+    const newQueueResult = PieceQueue.getNext(queue)
+    const nextPiece = initializePiece(newQueueResult.piece);
     
     return {
         lines: linesCleared,
         matrix: matrix,
         heldPiece: undefined,
         points: linesCleared * pointsPerLine,
-        queue,
+        queue: newQueueResult.queue,
         piece: nextPiece,
-        state: isEmptyPosition(matrix, nextPiece) ? 'PLAYING' : 'LOST'
+        state: isEmptyPosition(matrix, nextPiece) ? 'PLAYING' : 'LOST',
     }
 }

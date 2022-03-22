@@ -29,7 +29,7 @@ export type Game = {
   queue: PieceQueue.PieceQueue;
   points: number;
   lines: number;
-  metaDispatcher: React.Dispatch<MetaAction>;
+  // metaDispatcher: React.Dispatch<MetaAction> | undefined;
 };
 
 export const getLevel = (game: Game): number => Math.floor(game.lines / 10) + 1;
@@ -48,11 +48,11 @@ export type Action =
   | 'FLIP_COUNTERCLOCKWISE'
   | 'RESTART';
 
-export const update = (game: Game, action: Action): Game => {
+export const update = (game: Game, action: Action, metaDispatcher: React.Dispatch<MetaAction>): Game => {
   console.log(action)
   switch (action) {
     case 'RESTART': {
-      return init(game.metaDispatcher);
+      return init();
     }
     case 'PAUSE': {
       return game.state === 'PLAYING' ? { ...game, state: 'PAUSED' } : game;
@@ -67,7 +67,7 @@ export const update = (game: Game, action: Action): Game => {
     }
     case 'HARD_DROP': {
       if (game.state !== 'PLAYING') return game;
-      game.metaDispatcher({action: 'DROP_PIECE', piece: game.piece})
+      metaDispatcher({action: 'DROP_PIECE', piece: game.piece})
       const piece = hardDrop(game.matrix, game.piece);
       return lockInPiece({ ...game, piece });
     }
@@ -76,7 +76,7 @@ export const update = (game: Game, action: Action): Game => {
       if (game.state !== 'PLAYING') return game;
       const updated = applyMove(moveDown, game);
       if (game.piece === updated.piece) {
-        game.metaDispatcher({action: 'DROP_PIECE', piece: game.piece})
+        metaDispatcher({action: 'DROP_PIECE', piece: game.piece})
         return lockInPiece(updated);
       } else {
         return updated;
@@ -172,7 +172,7 @@ const applyMove = (
   return afterFlip ? { ...game, piece: afterFlip } : game;
 };
 
-export const init = (metaDispatcher: React.Dispatch<MetaAction>): Game => {
+export const init = (): Game => {
   const queue = PieceQueue.create(5);
   const next = PieceQueue.getNext(queue);
   return {
@@ -183,7 +183,6 @@ export const init = (metaDispatcher: React.Dispatch<MetaAction>): Game => {
     piece: initializePiece(next.piece),
     heldPiece: undefined,
     queue: next.queue,
-    metaDispatcher
   };
 };
 
