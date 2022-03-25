@@ -6,6 +6,7 @@ import GamePanel from './GamePanel';
 import TypedShell from './TypedShell';
 import { HeldPiece } from '../tetris_lib/models/Game';
 import HeldPieceView from '../tetris_lib/components/held-piece';
+import DraggableList from 'react-draggable-list';
 
 const Container = styled.div`
   box-sizing: border-box;

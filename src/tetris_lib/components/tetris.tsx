@@ -59,22 +59,23 @@ const tickSeconds = (level: number) =>
 
 export default function Tetris(props: Props): JSX.Element {
   const [game, dispatch] = React.useReducer((game: Game.Game, action: Game.Action) => Game.update(game, action, props.metaDispatcher), props.initialGame);
+  console.log({in: "tetris", props, game})
   const keyboardMap = props.keyboardControls ?? defaultKeyboardMap;
   useKeyboardControls(keyboardMap, dispatch);
   const level = Game.getLevel(game);
 
-  // React.useEffect(() => {
-  //   let interval: number | undefined;
-  //   if (game.state === 'PLAYING') {
-  //     interval = window.setInterval(() => {
-  //       dispatch('TICK');
-  //     }, tickSeconds(level) * 1000);
-  //   }
+  React.useEffect(() => {
+    let interval: number | undefined;
+    if (game.state === 'PLAYING') {
+      interval = window.setInterval(() => {
+        dispatch('TICK');
+      }, tickSeconds(level) * 1000);
+    }
 
-  //   return () => {
-  //     window.clearInterval(interval);
-  //   };
-  // }, [game.state, level]);
+    return () => {
+      window.clearInterval(interval);
+    };
+  }, [game.state, level]);
 
   const controller = React.useMemo(
     () => ({
@@ -94,7 +95,7 @@ export default function Tetris(props: Props): JSX.Element {
 
   return props.children({
         HeldPiece: () => <HeldPieceView heldPiece={game.heldPiece} />,
-        Gameboard: () => <Gameboard matrix={game.matrix} />,
+        Gameboard: () => <Gameboard matrix={game.matrix} piece={game.piece} />,
         PieceQueue: () => <PieceQueueView queue={game.queue} />,
         points: game.points,
         linesCleared: game.lines,

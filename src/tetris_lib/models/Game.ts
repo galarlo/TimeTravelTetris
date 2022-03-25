@@ -29,7 +29,6 @@ export type Game = {
   queue: PieceQueue.PieceQueue;
   points: number;
   lines: number;
-  // metaDispatcher: React.Dispatch<MetaAction> | undefined;
 };
 
 export const getLevel = (game: Game): number => Math.floor(game.lines / 10) + 1;
@@ -49,7 +48,7 @@ export type Action =
   | 'RESTART';
 
 export const update = (game: Game, action: Action, metaDispatcher: React.Dispatch<MetaAction>): Game => {
-  console.log(action)
+  console.log({in: "dispatcher", action})
   switch (action) {
     case 'RESTART': {
       return init();
@@ -187,12 +186,10 @@ export const init = (): Game => {
 };
 
 // Good display of merging piece + matrix
-export function viewMatrix(game: Game): Matrix {
-  let gameBoard = game.matrix;
-
+export function viewMatrix(gameBoard: Matrix, piece: PositionedPiece): Matrix {
   // set the preview
-  gameBoard = addPieceToBoard(gameBoard, hardDrop(gameBoard, game.piece), true);
+  gameBoard = addPieceToBoard(gameBoard, hardDrop(gameBoard, piece), true);
 
   // set the actual piece
-  return addPieceToBoard(gameBoard, game.piece);
+  return addPieceToBoard(gameBoard, piece);
 }
