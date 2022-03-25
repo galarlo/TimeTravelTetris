@@ -1,8 +1,11 @@
 import React, { useReducer, useState } from 'react';
 import styled from 'styled-components';
+import Gameboard from '../tetris_lib/components/gameboard';
 import { buildTetrisState, metaUpdate } from '../tetris_lib/models/MetaGame';
 import GamePanel from './GamePanel';
 import TypedShell from './TypedShell';
+import { HeldPiece } from '../tetris_lib/models/Game';
+import HeldPieceView from '../tetris_lib/components/held-piece';
 
 const Container = styled.div`
   box-sizing: border-box;

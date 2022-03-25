@@ -19,7 +19,7 @@ import { MetaAction } from './MetaGame';
 
 export type State = 'PAUSED' | 'PLAYING' | 'LOST';
 
-type HeldPiece = { available: boolean; piece: Piece };
+export type HeldPiece = { available: boolean; piece: Piece };
 
 export type Game = {
   state: State;

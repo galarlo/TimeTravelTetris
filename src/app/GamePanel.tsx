@@ -77,7 +77,9 @@ const GamePanel = ({metaDispatcher, inititalGame}: {metaDispatcher: React.Dispat
         linesCleared,
         state,
         controller
-      }) => (
+      }) => {
+        console.log({in: "renderFn", Gameboard, gameboardResult: Gameboard()})
+        return (
         <div>
           <div style={{ opacity: state === 'PLAYING' ? 1 : 0.5 }}>
             <Score>
@@ -134,7 +136,7 @@ const GamePanel = ({metaDispatcher, inititalGame}: {metaDispatcher: React.Dispat
             )}
           </div>
         </div>
-      )}
+      )}}
     </Tetris>
   </Container>
 );

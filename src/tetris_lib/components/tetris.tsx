@@ -1,16 +1,18 @@
 import React from 'react';
 import Gameboard from './gameboard';
 import * as Game from '../models/Game';
-import HeldPiece from './held-piece';
-import PieceQueue from './piece-queue';
-import { Context } from '../context';
+import HeldPieceView from './held-piece';
+import PieceQueueView from './piece-queue';
 import { KeyboardMap, useKeyboardControls } from '../hooks/useKeyboardControls';
 import { MetaAction } from '../models/MetaGame';
 
 type RenderFn = (params: {
-  HeldPiece: React.ComponentType;
-  Gameboard: React.ComponentType;
-  PieceQueue: React.ComponentType;
+  // HeldPiece: React.ComponentType<any>;
+  // Gameboard: React.ComponentType<any>;
+  // PieceQueue: React.ComponentType<any>;
+  HeldPiece: () => JSX.Element;
+  Gameboard: () => JSX.Element;
+  PieceQueue: () => JSX.Element;
   points: number;
   linesCleared: number;
   level: number;
@@ -61,18 +63,18 @@ export default function Tetris(props: Props): JSX.Element {
   useKeyboardControls(keyboardMap, dispatch);
   const level = Game.getLevel(game);
 
-  React.useEffect(() => {
-    let interval: number | undefined;
-    if (game.state === 'PLAYING') {
-      interval = window.setInterval(() => {
-        dispatch('TICK');
-      }, tickSeconds(level) * 1000);
-    }
+  // React.useEffect(() => {
+  //   let interval: number | undefined;
+  //   if (game.state === 'PLAYING') {
+  //     interval = window.setInterval(() => {
+  //       dispatch('TICK');
+  //     }, tickSeconds(level) * 1000);
+  //   }
 
-    return () => {
-      window.clearInterval(interval);
-    };
-  }, [game.state, level]);
+  //   return () => {
+  //     window.clearInterval(interval);
+  //   };
+  // }, [game.state, level]);
 
   const controller = React.useMemo(
     () => ({
@@ -90,18 +92,14 @@ export default function Tetris(props: Props): JSX.Element {
     [dispatch]
   );
 
-  return (
-    <Context.Provider value={game}>
-      {props.children({
-        HeldPiece,
-        Gameboard,
-        PieceQueue,
+  return props.children({
+        HeldPiece: () => <HeldPieceView heldPiece={game.heldPiece} />,
+        Gameboard: () => <Gameboard matrix={game.matrix} />,
+        PieceQueue: () => <PieceQueueView queue={game.queue} />,
         points: game.points,
         linesCleared: game.lines,
         state: game.state,
         level,
         controller
-      })}
-    </Context.Provider>
-  );
+      })
 }
