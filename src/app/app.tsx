@@ -6,7 +6,8 @@ import GamePanel from './GamePanel';
 import TypedShell from './TypedShell';
 import { HeldPiece } from '../tetris_lib/models/Game';
 import HeldPieceView from '../tetris_lib/components/held-piece';
-import DraggableList from 'react-draggable-list';
+import DraggableList from '../draggable-list/lib-react-draggable-lists/DraggableList';
+import DraggableListBasic from '../draggable-list/lib-react-motion-demo/DraggableListBasic';
 
 const Container = styled.div`
   box-sizing: border-box;
@@ -67,6 +68,13 @@ const App = (): JSX.Element => {
         <SubTitle>Embed a game of Tetris in your React app</SubTitle>
         <TypedShell>npm install --save react-tetris</TypedShell>
       </Heading>
+
+      <DraggableListBasic>
+            <div style={{ width: 30, height: 30, background: "green" }}>a</div>
+            <div style={{ width: 30, height: 30, background: "blue" }}>b</div>
+            <div style={{ width: 30, height: 30, background: "red" }}>c</div>
+      </DraggableListBasic>
+
     </LeftHalf>
     <RightHalf>
       <VerticallyCenterChildren>
