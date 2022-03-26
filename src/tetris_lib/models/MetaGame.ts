@@ -2,9 +2,11 @@ import { PositionedPiece, buildMatrix, hardDrop, setPiece, isEmptyPosition, Matr
 import { Game, initializePiece, pointsPerLine } from './Game';
 import { pieces } from './Piece';
 import * as PieceQueue from '../modules/piece-queue';
+import { reorder } from '../../draggable-list/HorizontalDraggableList';
 
 export type MetaAction =
     | {action: "DROP_PIECE", piece: PositionedPiece}
+    | {action: "REORDER_MOVES", oldIndex: number, newIndex: number}
 
 export function metaUpdate(pieces: PositionedPiece[], action: MetaAction): PositionedPiece[] {
     switch (action.action)
@@ -14,6 +16,14 @@ export function metaUpdate(pieces: PositionedPiece[], action: MetaAction): Posit
             const newPieces = [...pieces]
             newPieces.push(pieceAtTop)
             return newPieces
+        }
+        case "REORDER_MOVES": {
+            const newPieces = reorder(pieces, action.oldIndex, action.newIndex)
+            return newPieces
+        }
+        default: {
+            console.error({in: "metaUpdate", msg: "can't handle an action type!", action})
+            throw new Error("can't handle an action type!")
         }
     }
 }

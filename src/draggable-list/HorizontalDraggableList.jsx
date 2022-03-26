@@ -9,7 +9,7 @@ const getItems = count =>
   }));
 
 // a little function to help us with reordering the result
-const reorder = (list, startIndex, endIndex) => {
+export const reorder = (list, startIndex, endIndex) => {
   const result = Array.from(list);
   const [removed] = result.splice(startIndex, 1);
   result.splice(endIndex, 0, removed);
@@ -60,15 +60,12 @@ export default class HorizontalDraggableList extends Component {
       result.destination.index
     );
 
-    // this.setState({
-    //   items
-    // });
+    this.props.onReorder(result.source.index, result.destination.index)
   }
 
   // Normally you would want to split things out into separate components.
   // But in this example everything is just done in one place for simplicity
   render() {
-    console.log({in: "horizontal draggable list", items: this.props.items})
     return (
       <div style={{overflow: "scroll", height: 500}}>
       <DragDropContext onDragEnd={this.onDragEnd}>

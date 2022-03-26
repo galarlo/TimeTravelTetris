@@ -77,7 +77,9 @@ const App = (): JSX.Element => {
         <TypedShell>npm install --save react-tetris</TypedShell>
       </Heading> */}
 
-      <HorizontalDraggableList items={getGameboards(moves).map((board, i) => {return {id: i + "", content: <Gameboard matrix={board} piece={undefined} />}})} />
+      <HorizontalDraggableList 
+        items={getGameboards(moves).map((board, i) => {return {id: i + "", content: <div style={{border: '1px black solid'}}><Gameboard matrix={board} piece={undefined}/></div>}})} 
+        onReorder={(oldIndex: number, newIndex: number) => metaDispatcher({action: "REORDER_MOVES", oldIndex, newIndex})} />
     </LeftHalf>
     <RightHalf>
       <VerticallyCenterChildren>
