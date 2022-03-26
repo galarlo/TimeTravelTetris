@@ -1,13 +1,19 @@
 import React, { useReducer, useState } from 'react';
 import styled from 'styled-components';
 import Gameboard from '../tetris_lib/components/gameboard';
-import { buildTetrisState, metaUpdate } from '../tetris_lib/models/MetaGame';
+import { buildTetrisState, metaUpdate, getGameboards } from '../tetris_lib/models/MetaGame';
 import GamePanel from './GamePanel';
 import TypedShell from './TypedShell';
 import { HeldPiece } from '../tetris_lib/models/Game';
 import HeldPieceView from '../tetris_lib/components/held-piece';
-import DraggableList from '../draggable-list/lib-react-draggable-lists/DraggableList';
-import DraggableListBasic from '../draggable-list/lib-react-motion-demo/DraggableListBasic';
+import styles from '../react-draggable-lists-master/src/styles.css';
+import {
+  List,
+  arrayMove,
+  arrayRemove
+} from "baseui/dnd-list";
+import HorizontalDraggableList from '../draggable-list/HorizontalDraggableList';
+
 
 const Container = styled.div`
   box-sizing: border-box;
@@ -57,28 +63,25 @@ const SubTitle = styled.h2`
   font-size: 18px;
 `;
 
+const TenthScaled = styled.div`{transform: scale(0.3)}`
+
 const App = (): JSX.Element => {
   const [moves, metaDispatcher] = useReducer(metaUpdate, [])
   const mainGamePanelState = buildTetrisState(moves)
   return (
   <Container>
     <LeftHalf>
-      <Heading>
+      {/* <Heading>
         <Title>react tetris</Title>
         <SubTitle>Embed a game of Tetris in your React app</SubTitle>
         <TypedShell>npm install --save react-tetris</TypedShell>
-      </Heading>
+      </Heading> */}
 
-      <DraggableListBasic>
-            <div style={{ width: 30, height: 30, background: "green" }}>a</div>
-            <div style={{ width: 30, height: 30, background: "blue" }}>b</div>
-            <div style={{ width: 30, height: 30, background: "red" }}>c</div>
-      </DraggableListBasic>
-
+      <HorizontalDraggableList items={getGameboards(moves).map((board, i) => {return {id: i + "", content: <Gameboard matrix={board} piece={undefined} />}})} />
     </LeftHalf>
     <RightHalf>
       <VerticallyCenterChildren>
-        <GamePanel key={moves.length} metaDispatcher={metaDispatcher} inititalGame={mainGamePanelState} />
+        <GamePanel key={moves.length} metaDispatcher={metaDispatcher} inititalGame={mainGamePanelState}/>
       </VerticallyCenterChildren>
     </RightHalf>
   </Container>
