@@ -51,6 +51,7 @@ export const update = (game: Game, action: Action, metaDispatcher: React.Dispatc
   console.log({in: "dispatcher", action})
   switch (action) {
     case 'RESTART': {
+      metaDispatcher({action: "RESTART"})
       return init();
     }
     case 'PAUSE': {

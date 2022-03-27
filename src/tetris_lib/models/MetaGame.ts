@@ -7,6 +7,7 @@ import { reorder } from '../../draggable-list/HorizontalDraggableList';
 export type MetaAction =
     | {action: "DROP_PIECE", piece: PositionedPiece}
     | {action: "REORDER_MOVES", oldIndex: number, newIndex: number}
+    | {action: "RESTART"}
 
 export function metaUpdate(pieces: PositionedPiece[], action: MetaAction): PositionedPiece[] {
     switch (action.action)
@@ -21,6 +22,8 @@ export function metaUpdate(pieces: PositionedPiece[], action: MetaAction): Posit
             const newPieces = reorder(pieces, action.oldIndex, action.newIndex)
             return newPieces
         }
+        case "RESTART":
+            return []
         default: {
             console.error({in: "metaUpdate", msg: "can't handle an action type!", action})
             throw new Error("can't handle an action type!")
