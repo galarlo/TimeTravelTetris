@@ -67,9 +67,9 @@ export default class HorizontalDraggableList extends Component {
   // But in this example everything is just done in one place for simplicity
   render() {
     return (
-      <div style={{overflow: "scroll", height: 500}}>
+      <div style={{overflow: "scroll", height: "100%"}}>
       <DragDropContext onDragEnd={this.onDragEnd}>
-        <Droppable droppableId="droppable" direction="horizontal">
+        <Droppable droppableId="droppable" direction="horizontal" >
           {(provided, snapshot) => (
             <div
               ref={provided.innerRef}
@@ -83,10 +83,10 @@ export default class HorizontalDraggableList extends Component {
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
-                      // style={getItemStyle(
-                      //   snapshot.isDragging,
-                      //   provided.draggableProps.style
-                      // )}
+                      style={getItemStyle(
+                        snapshot.isDragging,
+                        provided.draggableProps.style
+                      )}
                     >
                       {item.content}
                     </div>

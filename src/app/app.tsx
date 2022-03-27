@@ -68,6 +68,7 @@ const TenthScaled = styled.div`{transform: scale(0.3)}`
 const App = (): JSX.Element => {
   const [moves, metaDispatcher] = useReducer(metaUpdate, [])
   const mainGamePanelState = buildTetrisState(moves)
+  const gameboards = getGameboards(moves)
   return (
   <Container>
     <LeftHalf>
@@ -78,7 +79,10 @@ const App = (): JSX.Element => {
       </Heading> */}
 
       <HorizontalDraggableList 
-        items={getGameboards(moves).map((board, i) => {return {id: i + "", content: <div style={{border: '1px black solid'}}><Gameboard matrix={board} piece={undefined}/></div>}})} 
+        items={gameboards.map((board, i) => {return {id: i + "", content: 
+        <div style={{border: '1px black solid'}}>
+          <Gameboard matrix={board} piece={undefined}/>
+        </div>}})} 
         onReorder={(oldIndex: number, newIndex: number) => metaDispatcher({action: "REORDER_MOVES", oldIndex, newIndex})} />
     </LeftHalf>
     <RightHalf>
