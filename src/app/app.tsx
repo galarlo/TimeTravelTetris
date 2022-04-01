@@ -13,6 +13,7 @@ import {
   arrayRemove
 } from "baseui/dnd-list";
 import HorizontalDraggableList from '../draggable-list/HorizontalDraggableList';
+import hash from 'object-hash'
 
 
 const Container = styled.div`
@@ -87,7 +88,7 @@ const App = (): JSX.Element => {
     </LeftHalf>
     <RightHalf>
       <VerticallyCenterChildren>
-        <GamePanel key={moves.length} metaDispatcher={metaDispatcher} inititalGame={mainGamePanelState}/>
+        <GamePanel key={hash(mainGamePanelState)} metaDispatcher={metaDispatcher} inititalGame={mainGamePanelState}/>
       </VerticallyCenterChildren>
     </RightHalf>
   </Container>
