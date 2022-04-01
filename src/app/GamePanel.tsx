@@ -98,17 +98,17 @@ const GamePanel = ({metaDispatcher, inititalGame}: {metaDispatcher: React.Dispat
               </RightHalf>
             </Score>
 
-            <LeftColumn>
+            {/* <LeftColumn>
               <HeldPiece />
-            </LeftColumn>
+            </LeftColumn> */}
 
             <MiddleColumn>
               <Gameboard />
             </MiddleColumn>
 
-            <RightColumn>
+            {/* <RightColumn>
               <PieceQueue />
-            </RightColumn>
+            </RightColumn> */}
 
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <div>
