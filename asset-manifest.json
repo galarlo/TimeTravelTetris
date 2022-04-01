@@ -1,10 +1,10 @@
 {
   "files": {
-    "main.js": "/TimeTravelTetris/static/js/main.046df897.js",
+    "main.js": "/TimeTravelTetris/static/js/main.f904c882.js",
     "index.html": "/TimeTravelTetris/index.html",
-    "main.046df897.js.map": "/TimeTravelTetris/static/js/main.046df897.js.map"
+    "main.f904c882.js.map": "/TimeTravelTetris/static/js/main.f904c882.js.map"
   },
   "entrypoints": [
-    "static/js/main.046df897.js"
+    "static/js/main.f904c882.js"
   ]
 }
