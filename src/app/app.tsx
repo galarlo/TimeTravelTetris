@@ -82,7 +82,7 @@ const App = (): JSX.Element => {
       <HorizontalDraggableList 
         items={gameboards.map((board, i) => {return {id: i + "", content: 
         <div style={{border: '1px black solid'}}>
-          <Gameboard matrix={board} piece={undefined}/>
+          <Gameboard matrix={board} piece={moves[i]}/> 
         </div>}})} 
         onReorder={(oldIndex: number, newIndex: number) => metaDispatcher({action: "REORDER_MOVES", oldIndex, newIndex})} />
     </LeftHalf>

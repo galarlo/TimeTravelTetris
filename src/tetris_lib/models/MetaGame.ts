@@ -63,8 +63,8 @@ export function applyTetrisMove(matrix: Matrix, pieceToDrop: PositionedPiece): {
 }
 
 export function getGameboards(moves: PositionedPiece[]): Matrix[] {
-    let matrices = []
     let matrix = buildMatrix()
+    let matrices = [matrix]
     for (const move of moves) {
         let {newMatrix} = applyTetrisMove(matrix, move)
         matrices.push(newMatrix)
