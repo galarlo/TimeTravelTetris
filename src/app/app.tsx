@@ -80,7 +80,7 @@ const App = (): JSX.Element => {
       </Heading> */}
 
       <HorizontalDraggableList 
-        items={gameboards.map((board, i) => {return {id: i + "", content: 
+        items={gameboards.slice(0, -1).map((board, i) => {return {id: i + "", content: 
         <div style={{border: '1px black solid'}}>
           <Gameboard matrix={board} piece={moves[i]}/> 
         </div>}})} 
