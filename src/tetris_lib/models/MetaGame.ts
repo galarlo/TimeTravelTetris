@@ -9,21 +9,35 @@ export type MetaAction =
     | {action: "REORDER_MOVES", oldIndex: number, newIndex: number}
     | {action: "RESTART"}
 
-export function metaUpdate(pieces: PositionedPiece[], action: MetaAction): PositionedPiece[] {
+export type MetaGame = {
+    moves: PositionedPiece[],
+    shouldScrollToLatestMove: boolean
+}
+
+export function metaUpdate(metaGame: MetaGame, action: MetaAction): MetaGame {
     switch (action.action)
     {
         case "DROP_PIECE": {
             const pieceAtTop: PositionedPiece = {...action.piece, position: {...action.piece.position, y: 0}}
-            const newPieces = [...pieces]
+            const newPieces = [...metaGame.moves]
             newPieces.push(pieceAtTop)
-            return newPieces
+            return {
+                moves: newPieces,
+                shouldScrollToLatestMove: true
+            }
         }
         case "REORDER_MOVES": {
-            const newPieces = reorder(pieces, action.oldIndex, action.newIndex)
-            return newPieces
-        }
+            const newPieces = reorderTyped(metaGame.moves, action.oldIndex, action.newIndex)
+            console.log({in: "metaUpdate->REORDER_MOVES", newPieces, metaGame})
+            return {
+                moves: newPieces,
+                shouldScrollToLatestMove: false
+            }        }
         case "RESTART":
-            return []
+            return {
+                moves: [],
+                shouldScrollToLatestMove: true
+            }  
         default: {
             console.error({in: "metaUpdate", msg: "can't handle an action type!", action})
             throw new Error("can't handle an action type!")
@@ -73,3 +87,7 @@ export function getGameboards(moves: PositionedPiece[]): Matrix[] {
 
     return matrices
 }
+
+function reorderTyped<T>(list: Iterable<T>, startIndex: number, endIndex: number): T[] {
+    return reorder(list, startIndex, endIndex)
+};

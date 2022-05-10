@@ -1,4 +1,4 @@
-import React, { useReducer, useState } from 'react';
+import React, { useEffect, useReducer, useRef, useState } from 'react';
 import styled from 'styled-components';
 import Gameboard from '../tetris_lib/components/gameboard';
 import { buildTetrisState, metaUpdate, getGameboards } from '../tetris_lib/models/MetaGame';
@@ -14,6 +14,7 @@ import {
 } from "baseui/dnd-list";
 import HorizontalDraggableList from '../draggable-list/HorizontalDraggableList';
 import hash from 'object-hash'
+import ScrollIntoView from './scrollIntoView';
 
 
 const Container = styled.div`
@@ -67,7 +68,9 @@ const SubTitle = styled.h2`
 const TenthScaled = styled.div`{transform: scale(0.3)}`
 
 const App = (): JSX.Element => {
-  const [moves, metaDispatcher] = useReducer(metaUpdate, [])
+  const [metaGame, metaDispatcher] = useReducer(metaUpdate, {moves: [], shouldScrollToLatestMove: false})
+  console.log({in: "app", metaGame})
+  const moves = metaGame.moves
   const mainGamePanelState = buildTetrisState(moves)
   const gameboards = getGameboards(moves)
   return (
@@ -81,9 +84,11 @@ const App = (): JSX.Element => {
 
       <HorizontalDraggableList 
         items={gameboards.slice(0, -1).map((board, i) => {return {id: i + "", content: 
-        <div style={{border: '1px black solid'}}>
-          <Gameboard matrix={board} piece={moves[i]}/> 
-        </div>}})} 
+        <ScrollIntoView isEnabled={metaGame.shouldScrollToLatestMove}>
+          <div style={{border: '1px black solid'}}>
+            <Gameboard matrix={board} piece={moves[i]} /> 
+          </div>
+        </ScrollIntoView>}})} 
         onReorder={(oldIndex: number, newIndex: number) => metaDispatcher({action: "REORDER_MOVES", oldIndex, newIndex})} />
     </LeftHalf>
     <RightHalf>
@@ -92,6 +97,7 @@ const App = (): JSX.Element => {
       </VerticallyCenterChildren>
     </RightHalf>
   </Container>
-)};
+  )
+};
 
 export default App;
