@@ -70,6 +70,7 @@ const TenthScaled = styled.div`{transform: scale(0.3)}`
 export const App = (): JSX.Element => {
   const [metaGame, metaDispatcher] = useReducer(metaUpdate, getEmptyMetaGame())
   console.log({in: "app", metaGame})
+  const currentGame = buildTetrisState(metaGame.moves, metaGame.currentGame)
   const moves = metaGame.moves
   const gameboards = getGameboards(moves)
   return (
@@ -83,7 +84,7 @@ export const App = (): JSX.Element => {
 
       <HorizontalDraggableList 
         items={gameboards.slice(0, -1).map((board, i) => {return {id: i + "", content: 
-        <ScrollIntoView isEnabled={metaGame.shouldScrollToLatestMove}>
+        <ScrollIntoView isEnabled={i === metaGame.currentGame || metaGame.currentGame >= metaGame.moves.length}>
           <div style={{border: '1px black solid'}} onClick={() => metaDispatcher({action: "TIME_TRAVEL_TO", index: i})}>
             <Gameboard matrix={board} piece={moves[i]}/> 
           </div>
@@ -92,7 +93,7 @@ export const App = (): JSX.Element => {
     </LeftHalf>
     <RightHalf>
       <VerticallyCenterChildren>
-        <GamePanel key={hash(metaGame.tetrisGame)} metaDispatcher={metaDispatcher} inititalGame={metaGame.tetrisGame}/>
+        <GamePanel key={hash(currentGame)} metaDispatcher={metaDispatcher} inititalGame={currentGame}/>
       </VerticallyCenterChildren>
     </RightHalf>
   </Container>

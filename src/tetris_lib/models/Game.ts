@@ -48,7 +48,7 @@ export type Action =
   | 'RESTART';
 
 export const update = (game: Game, action: Action, metaDispatcher: React.Dispatch<MetaAction>): Game => {
-  console.log({in: "dispatcher", action})
+  // console.log({in: "dispatcher", action})
   switch (action) {
     case 'RESTART': {
       metaDispatcher({action: "RESTART"})

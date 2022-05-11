@@ -60,7 +60,7 @@ const tickSeconds = (level: number) =>
 
 export default function Tetris(props: Props): JSX.Element {
   const [game, dispatch] = React.useReducer((game: Game.Game, action: Game.Action) => Game.update(game, action, props.metaDispatcher), props.initialGame);
-  console.log({in: "tetris", props, game})
+  // console.log({in: "tetris", props, game})
   const keyboardMap = props.keyboardControls ?? defaultKeyboardMap;
   useKeyboardControls(keyboardMap, dispatch);
   const level = Game.getLevel(game);

@@ -4,7 +4,7 @@ import { Matrix, PositionedPiece } from '../models/Matrix';
 import { getClassName } from '../models/Piece';
 
 export default function GameboardView(props: {matrix: Matrix, piece: PositionedPiece | undefined}): JSX.Element {
-  console.log({message: "In GameboardView", props})
+  // console.log({message: "In GameboardView", props})
   const gameboard = props.piece ? viewMatrix(props.matrix, props.piece) : props.matrix
 
   return (

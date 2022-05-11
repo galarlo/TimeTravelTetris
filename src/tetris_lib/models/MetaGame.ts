@@ -3,6 +3,7 @@ import { Game, initializePiece, pointsPerLine } from './Game';
 import { pieces } from './Piece';
 import * as PieceQueue from '../modules/piece-queue';
 import { reorder } from '../../draggable-list/HorizontalDraggableList';
+import {pieces as possiblePieces} from '../models/Piece'
 
 export type MetaAction =
     | {action: "DROP_PIECE", piece: PositionedPiece}
@@ -12,21 +13,24 @@ export type MetaAction =
 
 export type MetaGame = {
     moves: PositionedPiece[],
-    tetrisGame: Game,
-    shouldScrollToLatestMove: boolean
+    currentGame: number,
 }
 
 export function metaUpdate(metaGame: MetaGame, action: MetaAction): MetaGame {
     switch (action.action)
     {
         case "DROP_PIECE": {
-            const pieceAtTop: PositionedPiece = {...action.piece, position: {...action.piece.position, y: 0}}
-            const newPieces = [...metaGame.moves]
-            newPieces.push(pieceAtTop)
+            const newPiece: PositionedPiece = {...action.piece, position: {...action.piece.position, y: 0}}
+            const newMoves = [...metaGame.moves]
+            if (metaGame.currentGame >= metaGame.moves.length) {
+                newMoves.push(newPiece)
+            } else {
+                newMoves[metaGame.currentGame] = newPiece
+            }
+            
             return {
-                moves: newPieces,
-                shouldScrollToLatestMove: true,
-                tetrisGame: buildTetrisState(newPieces)
+                moves: newMoves,
+                currentGame: metaGame.currentGame + 1,
             }
         }
         case "REORDER_MOVES": {
@@ -34,24 +38,13 @@ export function metaUpdate(metaGame: MetaGame, action: MetaAction): MetaGame {
             console.log({in: "metaUpdate->REORDER_MOVES", newPieces, metaGame})
             return {
                 moves: newPieces,
-                shouldScrollToLatestMove: false,
-                tetrisGame: buildTetrisState(newPieces)
+                currentGame: metaGame.currentGame,
             }       
         }
         case "TIME_TRAVEL_TO":{
-            const currentTetris: Game = {
-                ...buildTetrisState(metaGame.moves.slice(0, Math.max(0, action.index - 1))),
-                piece: metaGame.moves[action.index],
-                queue: {
-                    queue: metaGame.moves.slice(Math.min(metaGame.moves.length, action.index + 1)).map(positionedPiece => positionedPiece.piece),
-                    bucket: [],
-                    minimumLength: 5,
-                },
-            }
-
             return {
-                ...metaGame, // TODO should scroll to traveled move. Maybe change `shouldScrollToLatestMove` to a `scrollTo: int`.
-                tetrisGame: currentTetris
+                ...metaGame,
+                currentGame: action.index,
             }
         }
         case "RESTART":
@@ -63,28 +56,30 @@ export function metaUpdate(metaGame: MetaGame, action: MetaAction): MetaGame {
     }
 }
 
-export function buildTetrisState(pieces: PositionedPiece[]): Game {
+export function buildTetrisState(pieces: PositionedPiece[], current: number): Game {
     let matrix = buildMatrix();
     let linesCleared = 0
-    for (const piece of pieces) {
+    for (const piece of pieces.slice(0, current)) {
         const {newMatrix, linesClearedByMove} = applyTetrisMove(matrix, piece)
         matrix = newMatrix
         linesCleared += linesClearedByMove   
     }
-
-    // TODO consistent queue
-    const queue = PieceQueue.create(5);
-    const newQueueResult = PieceQueue.getNext(queue)
-    const nextPiece = initializePiece(newQueueResult.piece);
     
+    const currentPiece = current < pieces.length ? pieces[current] : initializePiece(possiblePieces[current % possiblePieces.length]) // TODO fix queue
     return {
         lines: linesCleared,
         matrix: matrix,
         heldPiece: undefined,
         points: linesCleared * pointsPerLine,
-        queue: newQueueResult.queue,
-        piece: nextPiece,
-        state: isEmptyPosition(matrix, nextPiece) ? 'PLAYING' : 'LOST',
+        state: currentPiece === undefined || isEmptyPosition(matrix, currentPiece) ? 'PLAYING' : 'LOST',
+        piece: currentPiece,
+        queue: {
+            queue: pieces.slice(Math.min(pieces.length, current + 1))
+                .map(positionedPiece => positionedPiece.piece)
+                .concat(possiblePieces[pieces.length % possiblePieces.length]), // TODO fix queue
+            bucket: [],
+            minimumLength: 5,
+        }
     }
 }
 
@@ -113,7 +108,6 @@ export function reorderTyped<T>(list: Iterable<T>, startIndex: number, endIndex:
 export function getEmptyMetaGame(): MetaGame {
     return {
         moves: [],
-        shouldScrollToLatestMove: false,
-        tetrisGame: buildTetrisState([])
+        currentGame: 0,
     }
 }
