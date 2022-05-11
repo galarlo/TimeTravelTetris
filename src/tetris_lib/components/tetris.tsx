@@ -49,6 +49,7 @@ const defaultKeyboardMap: KeyboardMap = {
   x: 'FLIP_CLOCKWISE',
   up: 'FLIP_CLOCKWISE',
   p: 'TOGGLE_PAUSE',
+  s: 'TOGGLE_PAUSE',
   c: 'HOLD',
   shift: 'HOLD'
 };
