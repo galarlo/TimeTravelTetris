@@ -8,9 +8,11 @@ export type MetaAction =
     | {action: "DROP_PIECE", piece: PositionedPiece}
     | {action: "REORDER_MOVES", oldIndex: number, newIndex: number}
     | {action: "RESTART"}
+    | {action: "TIME_TRAVEL_TO", index: number}
 
 export type MetaGame = {
     moves: PositionedPiece[],
+    tetrisGame: Game,
     shouldScrollToLatestMove: boolean
 }
 
@@ -23,7 +25,8 @@ export function metaUpdate(metaGame: MetaGame, action: MetaAction): MetaGame {
             newPieces.push(pieceAtTop)
             return {
                 moves: newPieces,
-                shouldScrollToLatestMove: true
+                shouldScrollToLatestMove: true,
+                tetrisGame: buildTetrisState(newPieces)
             }
         }
         case "REORDER_MOVES": {
@@ -31,13 +34,28 @@ export function metaUpdate(metaGame: MetaGame, action: MetaAction): MetaGame {
             console.log({in: "metaUpdate->REORDER_MOVES", newPieces, metaGame})
             return {
                 moves: newPieces,
-                shouldScrollToLatestMove: false
-            }        }
-        case "RESTART":
+                shouldScrollToLatestMove: false,
+                tetrisGame: buildTetrisState(newPieces)
+            }       
+        }
+        case "TIME_TRAVEL_TO":{
+            const currentTetris: Game = {
+                ...buildTetrisState(metaGame.moves.slice(0, Math.max(0, action.index - 1))),
+                piece: metaGame.moves[action.index],
+                queue: {
+                    queue: metaGame.moves.slice(Math.min(metaGame.moves.length, action.index + 1)).map(positionedPiece => positionedPiece.piece),
+                    bucket: [],
+                    minimumLength: 5,
+                },
+            }
+
             return {
-                moves: [],
-                shouldScrollToLatestMove: true
-            }  
+                ...metaGame, // TODO should scroll to traveled move. Maybe change `shouldScrollToLatestMove` to a `scrollTo: int`.
+                tetrisGame: currentTetris
+            }
+        }
+        case "RESTART":
+            return getEmptyMetaGame()
         default: {
             console.error({in: "metaUpdate", msg: "can't handle an action type!", action})
             throw new Error("can't handle an action type!")
@@ -88,6 +106,14 @@ export function getGameboards(moves: PositionedPiece[]): Matrix[] {
     return matrices
 }
 
-function reorderTyped<T>(list: Iterable<T>, startIndex: number, endIndex: number): T[] {
+export function reorderTyped<T>(list: Iterable<T>, startIndex: number, endIndex: number): T[] {
     return reorder(list, startIndex, endIndex)
 };
+
+export function getEmptyMetaGame(): MetaGame {
+    return {
+        moves: [],
+        shouldScrollToLatestMove: false,
+        tetrisGame: buildTetrisState([])
+    }
+}

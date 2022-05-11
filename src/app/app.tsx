@@ -1,7 +1,7 @@
 import React, { useEffect, useReducer, useRef, useState } from 'react';
 import styled from 'styled-components';
 import Gameboard from '../tetris_lib/components/gameboard';
-import { buildTetrisState, metaUpdate, getGameboards } from '../tetris_lib/models/MetaGame';
+import { buildTetrisState, metaUpdate, getGameboards, getEmptyMetaGame } from '../tetris_lib/models/MetaGame';
 import GamePanel from './GamePanel';
 import TypedShell from './TypedShell';
 import { HeldPiece } from '../tetris_lib/models/Game';
@@ -67,11 +67,10 @@ const SubTitle = styled.h2`
 
 const TenthScaled = styled.div`{transform: scale(0.3)}`
 
-const App = (): JSX.Element => {
-  const [metaGame, metaDispatcher] = useReducer(metaUpdate, {moves: [], shouldScrollToLatestMove: false})
+export const App = (): JSX.Element => {
+  const [metaGame, metaDispatcher] = useReducer(metaUpdate, getEmptyMetaGame())
   console.log({in: "app", metaGame})
   const moves = metaGame.moves
-  const mainGamePanelState = buildTetrisState(moves)
   const gameboards = getGameboards(moves)
   return (
   <Container>
@@ -85,19 +84,17 @@ const App = (): JSX.Element => {
       <HorizontalDraggableList 
         items={gameboards.slice(0, -1).map((board, i) => {return {id: i + "", content: 
         <ScrollIntoView isEnabled={metaGame.shouldScrollToLatestMove}>
-          <div style={{border: '1px black solid'}}>
-            <Gameboard matrix={board} piece={moves[i]} /> 
+          <div style={{border: '1px black solid'}} onClick={() => metaDispatcher({action: "TIME_TRAVEL_TO", index: i})}>
+            <Gameboard matrix={board} piece={moves[i]}/> 
           </div>
         </ScrollIntoView>}})} 
         onReorder={(oldIndex: number, newIndex: number) => metaDispatcher({action: "REORDER_MOVES", oldIndex, newIndex})} />
     </LeftHalf>
     <RightHalf>
       <VerticallyCenterChildren>
-        <GamePanel key={hash(mainGamePanelState)} metaDispatcher={metaDispatcher} inititalGame={mainGamePanelState}/>
+        <GamePanel key={hash(metaGame.tetrisGame)} metaDispatcher={metaDispatcher} inititalGame={metaGame.tetrisGame}/>
       </VerticallyCenterChildren>
     </RightHalf>
   </Container>
   )
 };
-
-export default App;
