@@ -85,15 +85,15 @@ export const App = (): JSX.Element => {
       <HorizontalDraggableList 
         items={gameboards.slice(0, -1).map((board, i) => {return {id: i + "", content: 
         <ScrollIntoView isEnabled={i === metaGame.currentGame || metaGame.currentGame >= metaGame.moves.length}>
-          <div style={{border: '1px black solid'}} onClick={() => metaDispatcher({action: "TIME_TRAVEL_TO", index: i})}>
+          <div style={{border: i === metaGame.currentGame ? '3px green solid' : '1px black solid'}} onClick={() => metaDispatcher({action: "TIME_TRAVEL_TO", index: i})}>
             <Gameboard matrix={board} piece={moves[i]}/> 
           </div>
         </ScrollIntoView>}})} 
         onReorder={(oldIndex: number, newIndex: number) => metaDispatcher({action: "REORDER_MOVES", oldIndex, newIndex})} />
     </LeftHalf>
-    <RightHalf>
+    <RightHalf style={{border: metaGame.currentGame >= metaGame.moves.length ? '1  px green solid' : ''}}>
       <VerticallyCenterChildren>
-        <GamePanel key={hash(currentGame)} metaDispatcher={metaDispatcher} inititalGame={currentGame}/>
+          <GamePanel key={hash(currentGame)} metaDispatcher={metaDispatcher} inititalGame={currentGame} />
       </VerticallyCenterChildren>
     </RightHalf>
   </Container>
