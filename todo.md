@@ -1,0 +1,3 @@
+* Incentivize player to time travel: build a game board completely filled except for one column, then shuffle the moves to create it, then provide the necessery tall-blocks to clear all lines. The player should rearrange the shuffled almost-filled board, then drop the tall-blocks and win.
+* Friendlier UI for time travel - maybe show more moves in a single board? (use colors and gradients)
+* Meta-score (the score you gained only because of time travel)

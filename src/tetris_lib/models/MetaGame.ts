@@ -1,9 +1,10 @@
 import { PositionedPiece, buildMatrix, hardDrop, setPiece, isEmptyPosition, Matrix } from './Matrix';
 import { Game, initializePiece, pointsPerLine } from './Game';
-import { pieces } from './Piece';
+import { Piece, pieces } from './Piece';
 import * as PieceQueue from '../modules/piece-queue';
 import { reorder } from '../../draggable-list/HorizontalDraggableList';
 import {pieces as possiblePieces} from '../models/Piece'
+import { cyrb53 } from '../../utils';
 
 export type MetaAction =
     | {action: "DROP_PIECE", piece: PositionedPiece}
@@ -14,6 +15,7 @@ export type MetaAction =
 export type MetaGame = {
     moves: PositionedPiece[],
     currentGame: number,
+    seed: number,
 }
 
 export function metaUpdate(metaGame: MetaGame, action: MetaAction): MetaGame {
@@ -29,6 +31,7 @@ export function metaUpdate(metaGame: MetaGame, action: MetaAction): MetaGame {
             }
             
             return {
+                ...metaGame,
                 moves: newMoves,
                 currentGame: metaGame.currentGame + 1,
             }
@@ -37,6 +40,7 @@ export function metaUpdate(metaGame: MetaGame, action: MetaAction): MetaGame {
             const newPieces = reorderTyped(metaGame.moves, action.oldIndex, action.newIndex)
             console.log({in: "metaUpdate->REORDER_MOVES", newPieces, metaGame})
             return {
+                ...metaGame,
                 moves: newPieces,
                 currentGame: metaGame.currentGame,
             }       
@@ -56,7 +60,7 @@ export function metaUpdate(metaGame: MetaGame, action: MetaAction): MetaGame {
     }
 }
 
-export function buildTetrisState(pieces: PositionedPiece[], current: number): Game {
+export function buildTetrisState(pieces: PositionedPiece[], current: number, seed: number): Game {
     let matrix = buildMatrix();
     let linesCleared = 0
     for (const piece of pieces.slice(0, current)) {
@@ -65,7 +69,7 @@ export function buildTetrisState(pieces: PositionedPiece[], current: number): Ga
         linesCleared += linesClearedByMove   
     }
     
-    const currentPiece = current < pieces.length ? pieces[current] : initializePiece(possiblePieces[current % possiblePieces.length]) // TODO fix queue
+    const currentPiece = current < pieces.length ? pieces[current] : initializePiece(getQueuePieceAt(current, seed))
     return {
         lines: linesCleared,
         matrix: matrix,
@@ -76,11 +80,16 @@ export function buildTetrisState(pieces: PositionedPiece[], current: number): Ga
         queue: {
             queue: pieces.slice(Math.min(pieces.length, current + 1))
                 .map(positionedPiece => positionedPiece.piece)
-                .concat(possiblePieces[pieces.length % possiblePieces.length]), // TODO fix queue
+                .concat(getQueuePieceAt(pieces.length, seed)),
             bucket: [],
             minimumLength: 5,
         }
     }
+}
+
+export function getQueuePieceAt(index: number, seed: number): Piece {
+    const hash = cyrb53(index.toString(), seed)
+    return possiblePieces[hash % possiblePieces.length]
 }
 
 export function applyTetrisMove(matrix: Matrix, pieceToDrop: PositionedPiece): {newMatrix: Matrix, linesClearedByMove: number} {
@@ -109,5 +118,6 @@ export function getEmptyMetaGame(): MetaGame {
     return {
         moves: [],
         currentGame: 0,
+        seed: Date.now()
     }
 }

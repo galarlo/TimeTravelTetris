@@ -70,7 +70,7 @@ const TenthScaled = styled.div`{transform: scale(0.3)}`
 export const App = (): JSX.Element => {
   const [metaGame, metaDispatcher] = useReducer(metaUpdate, getEmptyMetaGame())
   console.log({in: "app", metaGame})
-  const currentGame = buildTetrisState(metaGame.moves, metaGame.currentGame)
+  const currentGame = buildTetrisState(metaGame.moves, metaGame.currentGame, metaGame.seed)
   const moves = metaGame.moves
   const gameboards = getGameboards(moves)
   return (
