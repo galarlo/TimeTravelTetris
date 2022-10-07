@@ -80,8 +80,8 @@ const GamePanel = ({metaDispatcher, inititalGame}: {metaDispatcher: React.Dispat
       }) => {
         return (
         <div>
-          <div style={{ opacity: state === 'PLAYING' ? 1 : 0.5}}>
-            <Score>
+          <div style={{ opacity: state === 'PLAYING' ? 1 : 0.5, display: 'flex'}}>
+            {/* <Score>
               <LeftHalf>
                 <p>
                   points
@@ -96,19 +96,38 @@ const GamePanel = ({metaDispatcher, inititalGame}: {metaDispatcher: React.Dispat
                   <Digits>{linesCleared}</Digits>
                 </p>
               </RightHalf>
-            </Score>
+            </Score> */}
 
             {/* <LeftColumn>
               <HeldPiece />
             </LeftColumn> */}
 
-            <MiddleColumn>
+            {/* <MiddleColumn> */}
               <Gameboard />
-            </MiddleColumn>
+            {/* </MiddleColumn> */}
 
-            {/* <RightColumn>
+            <div style={{marginLeft: '3%'}}>
+              <p>
+                tetris points
+                <br />
+                <Digits>{points}</Digits>
+              </p>
+              <p>
+                meta-tetris points
+                <br />
+                <Digits>{-111}</Digits> <br/>
+                (+<Digit>{+111}</Digit> changed)
+              </p>
+              <p>
+                lines
+                <br />
+                <Digits>{linesCleared}</Digits>
+              </p>
+            </div>
+
+            {/* { <RightColumn>
               <PieceQueue />
-            </RightColumn> */}
+            </RightColumn> } */}
 
             {/* <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <div>
