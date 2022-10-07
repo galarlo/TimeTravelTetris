@@ -42,7 +42,7 @@ export function metaUpdate(metaGame: MetaGame, action: MetaAction): MetaGame {
             return {
                 ...metaGame,
                 moves: newPieces,
-                currentGame: metaGame.currentGame,
+                currentGame: action.newIndex,
             }       
         }
         case "TIME_TRAVEL_TO":{
