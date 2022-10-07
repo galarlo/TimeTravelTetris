@@ -106,25 +106,6 @@ const GamePanel = ({metaDispatcher, inititalGame}: {metaDispatcher: React.Dispat
               <Gameboard />
             {/* </MiddleColumn> */}
 
-            <div style={{marginLeft: '3%'}}>
-              <p>
-                tetris points
-                <br />
-                <Digits>{points}</Digits>
-              </p>
-              <p>
-                meta-tetris points
-                <br />
-                <Digits>{-111}</Digits> <br/>
-                (+<Digit>{+111}</Digit> changed)
-              </p>
-              <p>
-                lines
-                <br />
-                <Digits>{linesCleared}</Digits>
-              </p>
-            </div>
-
             {/* { <RightColumn>
               <PieceQueue />
             </RightColumn> } */}
@@ -166,11 +147,11 @@ const Digit = styled.span`
   font-size: 24px;
 `;
 
-type DigitsProps = {
+export type DigitsProps = {
   children: number;
   count?: number;
 };
-const Digits = ({ children, count = 4 }: DigitsProps): JSX.Element => {
+export const Digits = ({ children, count = 4 }: DigitsProps): JSX.Element => {
   let str = children.toString();
 
   while (str.length < count) {

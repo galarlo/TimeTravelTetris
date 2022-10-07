@@ -2,6 +2,7 @@ import React, { useEffect, useReducer, useRef, useState } from 'react';
 import styled from 'styled-components';
 import Gameboard from '../tetris_lib/components/gameboard';
 import { buildTetrisState, metaUpdate, getGameboards, getEmptyMetaGame, MetaGame } from '../tetris_lib/models/MetaGame';
+import {Digits, DigitsProps} from './GamePanel';
 import GamePanel from './GamePanel';
 import TypedShell from './TypedShell';
 import { HeldPiece } from '../tetris_lib/models/Game';
@@ -15,7 +16,6 @@ import {
 import HorizontalDraggableList from '../draggable-list/HorizontalDraggableList';
 import hash from 'object-hash'
 import ScrollIntoView from './scrollIntoView';
-import { resolve } from 'path';
 
 
 const Container = styled.div`
@@ -76,8 +76,26 @@ export const App = (): JSX.Element => {
   const gameboards = getGameboards(moves)
   return (
     <div style={{width: '100%', height: '100%', margin: 0, padding: 0, position: 'absolute'}}>
-      <div style={{height: '50%', width: '100%',}}>
+      <div style={{height: '50%', width: '100%', display: 'flex'}}>
         <GamePanel key={hash(currentGame)} metaDispatcher={metaDispatcher} inititalGame={currentGame} />
+        <div style={{marginLeft: '3%'}}>
+              <p>
+                tetris points
+                <br />
+                <Digits>{currentGame.points}</Digits>
+              </p>
+              <p>
+                meta-tetris points
+                <br />
+                <Digits>{metaGame.metaScore}</Digits> <br/>
+                (<Digits>{metaGame.metaScoreDiff}</Digits> changed)
+              </p>
+              <p>
+                lines
+                <br />
+                <Digits>{currentGame.lines}</Digits>
+              </p>
+            </div>
       </div>
       <div style={{height: '50%', width: '100%'}}>
         <HorizontalDraggableList 

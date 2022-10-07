@@ -17,6 +17,8 @@ export type MetaGame = {
     currentGame: number,
     seed: number,
     disallowed_time_travels: number[]
+    metaScore: number,
+    metaScoreDiff: number
 }
 
 export function metaUpdate(metaGame: MetaGame, action: MetaAction): MetaGame {
@@ -25,27 +27,37 @@ export function metaUpdate(metaGame: MetaGame, action: MetaAction): MetaGame {
         case "DROP_PIECE": {
             const newPiece: PositionedPiece = {...action.piece, position: {...action.piece.position, y: 0}}
             const newMoves = [...metaGame.moves]
+            let metaScoreDiff: number | null = null;
             if (metaGame.currentGame >= metaGame.moves.length) {
                 newMoves.push(newPiece)
+
+                metaScoreDiff = 0
             } else {
                 newMoves[metaGame.currentGame] = newPiece
+
+                metaScoreDiff = scoreDiff(metaGame.moves, newMoves, metaGame.seed)
             }
             
             return {
                 ...metaGame,
                 moves: newMoves,
                 currentGame: metaGame.currentGame + 1,
-                disallowed_time_travels: [metaGame.currentGame]
+                disallowed_time_travels: [metaGame.currentGame],
+                metaScoreDiff: metaScoreDiff,
+                metaScore: metaGame.metaScore + metaScoreDiff
             }
         }
         case "REORDER_MOVES": {
             const newPieces = reorderTyped(metaGame.moves, action.oldIndex, action.newIndex)
+            const metaScoreDiff = 3 * scoreDiff(metaGame.moves, newPieces, metaGame.seed)
             console.log({in: "metaUpdate->REORDER_MOVES", newPieces, metaGame})
             return {
                 ...metaGame,
                 moves: newPieces,
                 currentGame: action.newIndex,
-                disallowed_time_travels: []
+                disallowed_time_travels: [],
+                metaScoreDiff,
+                metaScore: metaGame.metaScore + metaScoreDiff,
             }       
         }
         case "TIME_TRAVEL_TO":{
@@ -56,7 +68,8 @@ export function metaUpdate(metaGame: MetaGame, action: MetaAction): MetaGame {
             return {
                 ...metaGame,
                 currentGame: action.index,
-                disallowed_time_travels: []
+                disallowed_time_travels: [],
+                metaScoreDiff: 0
             }
         }
         case "RESTART":
@@ -95,6 +108,13 @@ export function buildTetrisState(pieces: PositionedPiece[], current: number, see
     }
 }
 
+function scoreDiff(old: PositionedPiece[], newMoves: PositionedPiece[], seed: number){
+    const oldTetrisScore = buildTetrisState(old, old.length, seed).points
+    const newTetrisScore = buildTetrisState(newMoves, newMoves.length, seed).points
+    return newTetrisScore - oldTetrisScore
+
+}
+
 export function getQueuePieceAt(index: number, seed: number): Piece {
     const hash = cyrb53(index.toString(), seed)
     return possiblePieces[hash % possiblePieces.length]
@@ -127,6 +147,8 @@ export function getEmptyMetaGame(): MetaGame {
         moves: [],
         currentGame: 0,
         seed: Date.now(),
-        disallowed_time_travels: []
+        disallowed_time_travels: [],
+        metaScore: 0,
+        metaScoreDiff: 0
     }
 }
