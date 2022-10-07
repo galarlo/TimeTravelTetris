@@ -140,7 +140,7 @@ const lockInPiece = (game: Game): Game => {
   };
 };
 
-export const pointsPerLine = 100;
+export const pointsPerLine = 1;
 const addScore = (additionalLines: number) => {
   // what's this called?
   if (additionalLines === 4) {
