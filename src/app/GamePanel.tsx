@@ -5,7 +5,7 @@ import { Game } from '../tetris_lib/models/Game';
 import { MetaAction } from '../tetris_lib/models/MetaGame';
 
 const Container = styled.div`
-  margin: 24px auto 0;
+  margin: 0px auto 0;
   width: 100%;
   max-width: 376px;
 `;
@@ -45,7 +45,7 @@ const MiddleColumn = styled(Column)`
 
 const Popup = styled.div`
   position: absolute;
-  top: 50%;
+  top: 25%;
   left: 50%;
   transform: translate(-50%, -50%);
   background: #fff;
@@ -80,7 +80,7 @@ const GamePanel = ({metaDispatcher, inititalGame}: {metaDispatcher: React.Dispat
       }) => {
         return (
         <div>
-          <div style={{ opacity: state === 'PLAYING' ? 1 : 0.5 }}>
+          <div style={{ opacity: state === 'PLAYING' ? 1 : 0.5}}>
             <Score>
               <LeftHalf>
                 <p>
@@ -110,7 +110,7 @@ const GamePanel = ({metaDispatcher, inititalGame}: {metaDispatcher: React.Dispat
               <PieceQueue />
             </RightColumn> */}
 
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            {/* <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <div>
                 <button onClick={controller.moveLeft}>left</button>
                 <button onClick={controller.moveRight}>right</button>
@@ -119,7 +119,7 @@ const GamePanel = ({metaDispatcher, inititalGame}: {metaDispatcher: React.Dispat
                 <button onClick={controller.flipClockwise}>turn</button>
                 <button onClick={controller.hardDrop}>drop</button>
               </div>
-            </div>
+            </div> */}
 
             {state === 'PAUSED' && (
               <Popup>

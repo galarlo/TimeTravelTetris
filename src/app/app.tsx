@@ -75,6 +75,23 @@ export const App = (): JSX.Element => {
   const moves = metaGame.moves
   const gameboards = getGameboards(moves)
   return (
+    <div style={{width: '100%', height: '100%', margin: 0, padding: 0, position: 'absolute'}}>
+      <div style={{height: '50%', width: '100%',}}>
+        <GamePanel key={hash(currentGame)} metaDispatcher={metaDispatcher} inititalGame={currentGame} />
+      </div>
+      <div style={{height: '50%', width: '100%'}}>
+        <HorizontalDraggableList 
+          items={gameboards.slice(0, -1).map((board, i) => {return {id: i + "", content: 
+          <ScrollIntoView isEnabled={i === metaGame.currentGame || metaGame.currentGame >= metaGame.moves.length}>
+            <div style={resolve_style(metaGame, i)} onClick={() => metaDispatcher({action: "TIME_TRAVEL_TO", index: i})}>
+              <Gameboard matrix={board} piece={moves[i]}/> 
+            </div>
+          </ScrollIntoView>}})} 
+          onReorder={(oldIndex: number, newIndex: number) => metaDispatcher({action: "REORDER_MOVES", oldIndex, newIndex})} />
+      </div>
+    </div>
+  )
+  return (
   <Container>
     <LeftHalf>
       {/* <Heading>
