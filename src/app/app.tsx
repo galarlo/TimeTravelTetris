@@ -1,7 +1,7 @@
 import React, { useEffect, useReducer, useRef, useState } from 'react';
 import styled from 'styled-components';
 import Gameboard from '../tetris_lib/components/gameboard';
-import { buildTetrisState, metaUpdate, getGameboards, getEmptyMetaGame } from '../tetris_lib/models/MetaGame';
+import { buildTetrisState, metaUpdate, getGameboards, getEmptyMetaGame, MetaGame } from '../tetris_lib/models/MetaGame';
 import GamePanel from './GamePanel';
 import TypedShell from './TypedShell';
 import { HeldPiece } from '../tetris_lib/models/Game';
@@ -15,6 +15,7 @@ import {
 import HorizontalDraggableList from '../draggable-list/HorizontalDraggableList';
 import hash from 'object-hash'
 import ScrollIntoView from './scrollIntoView';
+import { resolve } from 'path';
 
 
 const Container = styled.div`
@@ -85,7 +86,7 @@ export const App = (): JSX.Element => {
       <HorizontalDraggableList 
         items={gameboards.slice(0, -1).map((board, i) => {return {id: i + "", content: 
         <ScrollIntoView isEnabled={i === metaGame.currentGame || metaGame.currentGame >= metaGame.moves.length}>
-          <div style={{border: i === metaGame.currentGame ? '3px green solid' : '1px black solid'}} onClick={() => metaDispatcher({action: "TIME_TRAVEL_TO", index: i})}>
+          <div style={resolve_style(metaGame, i)} onClick={() => metaDispatcher({action: "TIME_TRAVEL_TO", index: i})}>
             <Gameboard matrix={board} piece={moves[i]}/> 
           </div>
         </ScrollIntoView>}})} 
@@ -99,3 +100,13 @@ export const App = (): JSX.Element => {
   </Container>
   )
 };
+
+function resolve_style(metaGame: MetaGame, index: number): React.CSSProperties {
+  if (index == metaGame.currentGame) {
+    return {border: '3px green solid'}
+  } else if (metaGame.disallowed_time_travels.includes(index)) {
+    return {border: '2px #813e3e dotted', opacity: '0.5'}
+  } else {
+    return {}
+  }
+}
