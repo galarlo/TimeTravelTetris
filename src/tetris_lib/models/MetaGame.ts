@@ -16,6 +16,7 @@ export type MetaGame = {
     moves: PositionedPiece[],
     currentGame: number,
     seed: number,
+    disallowed_time_travels: number[]
 }
 
 export function metaUpdate(metaGame: MetaGame, action: MetaAction): MetaGame {
@@ -34,6 +35,7 @@ export function metaUpdate(metaGame: MetaGame, action: MetaAction): MetaGame {
                 ...metaGame,
                 moves: newMoves,
                 currentGame: metaGame.currentGame + 1,
+                disallowed_time_travels: [metaGame.currentGame]
             }
         }
         case "REORDER_MOVES": {
@@ -43,12 +45,18 @@ export function metaUpdate(metaGame: MetaGame, action: MetaAction): MetaGame {
                 ...metaGame,
                 moves: newPieces,
                 currentGame: action.newIndex,
+                disallowed_time_travels: []
             }       
         }
         case "TIME_TRAVEL_TO":{
+            if (metaGame.disallowed_time_travels.includes(action.index)) {
+                return metaGame
+            }
+
             return {
                 ...metaGame,
                 currentGame: action.index,
+                disallowed_time_travels: []
             }
         }
         case "RESTART":
@@ -118,6 +126,7 @@ export function getEmptyMetaGame(): MetaGame {
     return {
         moves: [],
         currentGame: 0,
-        seed: Date.now()
+        seed: Date.now(),
+        disallowed_time_travels: []
     }
 }
