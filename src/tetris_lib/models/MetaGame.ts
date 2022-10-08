@@ -23,7 +23,6 @@ export type MetaState = {
     seed: number,
     disallowed_time_travels: number[]
     metaScore: number,
-    metaScoreDiff: number
 }
 
 export function metaUpdate(metaGame: MetaGame, action: MetaAction): MetaGame {
@@ -39,15 +38,10 @@ export function applyMetaMove(prevState: MetaState, action: MetaAction): MetaSta
         case "DROP_PIECE": {
             const newPiece: PositionedPiece = {...action.piece, position: {...action.piece.position, y: 0}}
             const newMoves = [...prevState.moves]
-            let metaScoreDiff: number | null = null;
             if (prevState.currentGame >= prevState.moves.length) {
                 newMoves.push(newPiece)
-
-                metaScoreDiff = 0
             } else {
                 newMoves[prevState.currentGame] = newPiece
-
-                metaScoreDiff = scoreDiff(prevState.moves, newMoves, prevState.seed)
             }
             
             return {
@@ -55,21 +49,18 @@ export function applyMetaMove(prevState: MetaState, action: MetaAction): MetaSta
                 moves: newMoves,
                 currentGame: prevState.currentGame + 1,
                 disallowed_time_travels: [prevState.currentGame],
-                metaScoreDiff: metaScoreDiff,
-                metaScore: prevState.metaScore + metaScoreDiff
+                metaScore: prevState.metaScore + scoreDiff(prevState.moves, newMoves, prevState.seed)
             }
         }
         case "REORDER_MOVES": {
             const newPieces = reorderTyped(prevState.moves, action.oldIndex, action.newIndex)
-            const metaScoreDiff = 3 * scoreDiff(prevState.moves, newPieces, prevState.seed)
             console.log({in: "metaUpdate->REORDER_MOVES", newPieces, metaGame: prevState})
             return {
                 ...prevState,
                 moves: newPieces,
                 currentGame: action.newIndex,
                 disallowed_time_travels: [],
-                metaScoreDiff,
-                metaScore: prevState.metaScore + metaScoreDiff,
+                metaScore: prevState.metaScore + 3 * scoreDiff(prevState.moves, newPieces, prevState.seed),
             }       
         }
         case "TIME_TRAVEL_TO":{
@@ -81,7 +72,6 @@ export function applyMetaMove(prevState: MetaState, action: MetaAction): MetaSta
                 ...prevState,
                 currentGame: action.index,
                 disallowed_time_travels: [],
-                metaScoreDiff: 0
             }
         }
         case "RESTART":
@@ -174,7 +164,6 @@ export function getEmptyMetaGameState(): MetaState {
         seed: Date.now(),
         disallowed_time_travels: [],
         metaScore: 0,
-        metaScoreDiff: 0
     }
 }
 

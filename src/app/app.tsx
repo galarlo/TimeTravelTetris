@@ -90,7 +90,7 @@ export const App = (): JSX.Element => {
                 meta-tetris points
                 <br />
                 <Digits>{currentMetaState.metaScore}</Digits> <br/>
-                (<Digits>{currentMetaState.metaScoreDiff}</Digits> changed)
+                (<Digits>{ metaScoreDiff(metaStates) }</Digits> changed)
               </p>
               <p>
                 lines
@@ -121,4 +121,9 @@ function resolve_style(metaState: MetaState, index: number): React.CSSProperties
   } else {
     return {}
   }
+}
+
+function metaScoreDiff(metaStates: MetaState[]): number {
+  if (metaStates.length <= 2) return 0
+  return metaStates[metaStates.length - 2].metaScore - metaStates[metaStates.length - 1].metaScore
 }
