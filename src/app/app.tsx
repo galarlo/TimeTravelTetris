@@ -99,7 +99,7 @@ export const App = (): JSX.Element => {
                 <Digits>{currentGame.lines}</Digits>
               </p>
         </div>
-        <div style={{marginLeft: '3%'}}>
+        <div style={{marginLeft: '3%', width: '50%'}}>
           <MetaScoreChart metaStates={metaStates}/>
         </div>
       </div>

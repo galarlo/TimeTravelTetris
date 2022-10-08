@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { CSSProperties } from 'react';
 import { MetaState } from '../tetris_lib/models/MetaGame';
 import {
     Chart as ChartJS,
@@ -57,5 +57,5 @@ export const data = {
 };
 
 export const MetaScoreChart = ({metaStates}: {metaStates: MetaState[]}): JSX.Element => {
-    return <Line options={options} data={data} />;
+    return <Line options={options} data={data} />
 }
