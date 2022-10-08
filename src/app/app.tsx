@@ -1,7 +1,7 @@
 import React, { useEffect, useReducer, useRef, useState } from 'react';
 import styled from 'styled-components';
 import Gameboard from '../tetris_lib/components/gameboard';
-import { buildTetrisState, metaUpdate, getGameboards, getEmptyMetaGame, MetaGame } from '../tetris_lib/models/MetaGame';
+import { buildTetrisState, applyMetaMove, getGameboards, getEmptyMetaGameState, MetaGame, metaUpdate, buildMetaStates, MetaState, getEmptyMetaGame } from '../tetris_lib/models/MetaGame';
 import {Digits, DigitsProps} from './GamePanel';
 import GamePanel from './GamePanel';
 import TypedShell from './TypedShell';
@@ -71,8 +71,10 @@ const TenthScaled = styled.div`{transform: scale(0.3)}`
 export const App = (): JSX.Element => {
   const [metaGame, metaDispatcher] = useReducer(metaUpdate, getEmptyMetaGame())
   console.log({in: "app", metaGame})
-  const currentGame = buildTetrisState(metaGame.moves, metaGame.currentGame, metaGame.seed)
-  const moves = metaGame.moves
+  const metaStates = buildMetaStates(metaGame)
+  const currentMetaState = metaStates[metaStates.length - 1]
+  const currentGame = buildTetrisState(currentMetaState.moves, currentMetaState.currentGame, currentMetaState.seed)
+  const moves = currentMetaState.moves
   const gameboards = getGameboards(moves)
   return (
     <div style={{width: '100%', height: '100%', margin: 0, padding: 0, position: 'absolute'}}>
@@ -87,8 +89,8 @@ export const App = (): JSX.Element => {
               <p>
                 meta-tetris points
                 <br />
-                <Digits>{metaGame.metaScore}</Digits> <br/>
-                (<Digits>{metaGame.metaScoreDiff}</Digits> changed)
+                <Digits>{currentMetaState.metaScore}</Digits> <br/>
+                (<Digits>{currentMetaState.metaScoreDiff}</Digits> changed)
               </p>
               <p>
                 lines
@@ -100,8 +102,8 @@ export const App = (): JSX.Element => {
       <div style={{height: '50%', width: '100%'}}>
         <HorizontalDraggableList 
           items={gameboards.slice(0, -1).map((board, i) => {return {id: i + "", content: 
-          <ScrollIntoView isEnabled={i === metaGame.currentGame || metaGame.currentGame >= metaGame.moves.length}>
-            <div style={resolve_style(metaGame, i)} onClick={() => metaDispatcher({action: "TIME_TRAVEL_TO", index: i})}>
+          <ScrollIntoView isEnabled={i === currentMetaState.currentGame || currentMetaState.currentGame >= currentMetaState.moves.length}>
+            <div style={resolve_style(currentMetaState, i)} onClick={() => metaDispatcher({action: "TIME_TRAVEL_TO", index: i})}>
               <Gameboard matrix={board} piece={moves[i]}/> 
             </div>
           </ScrollIntoView>}})} 
@@ -109,37 +111,12 @@ export const App = (): JSX.Element => {
       </div>
     </div>
   )
-  return (
-  <Container>
-    <LeftHalf>
-      {/* <Heading>
-        <Title>react tetris</Title>
-        <SubTitle>Embed a game of Tetris in your React app</SubTitle>
-        <TypedShell>npm install --save react-tetris</TypedShell>
-      </Heading> */}
-
-      <HorizontalDraggableList 
-        items={gameboards.slice(0, -1).map((board, i) => {return {id: i + "", content: 
-        <ScrollIntoView isEnabled={i === metaGame.currentGame || metaGame.currentGame >= metaGame.moves.length}>
-          <div style={resolve_style(metaGame, i)} onClick={() => metaDispatcher({action: "TIME_TRAVEL_TO", index: i})}>
-            <Gameboard matrix={board} piece={moves[i]}/> 
-          </div>
-        </ScrollIntoView>}})} 
-        onReorder={(oldIndex: number, newIndex: number) => metaDispatcher({action: "REORDER_MOVES", oldIndex, newIndex})} />
-    </LeftHalf>
-    <RightHalf style={{border: metaGame.currentGame >= metaGame.moves.length ? '1  px green solid' : ''}}>
-      <VerticallyCenterChildren>
-          <GamePanel key={hash(currentGame)} metaDispatcher={metaDispatcher} inititalGame={currentGame} />
-      </VerticallyCenterChildren>
-    </RightHalf>
-  </Container>
-  )
 };
 
-function resolve_style(metaGame: MetaGame, index: number): React.CSSProperties {
-  if (index == metaGame.currentGame) {
+function resolve_style(metaState: MetaState, index: number): React.CSSProperties {
+  if (index === metaState.currentGame) {
     return {border: '3px green solid'}
-  } else if (metaGame.disallowed_time_travels.includes(index)) {
+  } else if (metaState.disallowed_time_travels.includes(index)) {
     return {border: '2px #813e3e dotted', opacity: '0.5'}
   } else {
     return {}

@@ -13,6 +13,11 @@ export type MetaAction =
     | {action: "TIME_TRAVEL_TO", index: number}
 
 export type MetaGame = {
+    metaMoves: MetaAction[],
+    // seed: number,
+}
+
+export type MetaState = {
     moves: PositionedPiece[],
     currentGame: number,
     seed: number,
@@ -22,63 +27,83 @@ export type MetaGame = {
 }
 
 export function metaUpdate(metaGame: MetaGame, action: MetaAction): MetaGame {
+    return {
+        ...metaGame,
+        metaMoves: [...metaGame.metaMoves, action],
+    }
+}
+
+export function applyMetaMove(prevState: MetaState, action: MetaAction): MetaState {
     switch (action.action)
     {
         case "DROP_PIECE": {
             const newPiece: PositionedPiece = {...action.piece, position: {...action.piece.position, y: 0}}
-            const newMoves = [...metaGame.moves]
+            const newMoves = [...prevState.moves]
             let metaScoreDiff: number | null = null;
-            if (metaGame.currentGame >= metaGame.moves.length) {
+            if (prevState.currentGame >= prevState.moves.length) {
                 newMoves.push(newPiece)
 
                 metaScoreDiff = 0
             } else {
-                newMoves[metaGame.currentGame] = newPiece
+                newMoves[prevState.currentGame] = newPiece
 
-                metaScoreDiff = scoreDiff(metaGame.moves, newMoves, metaGame.seed)
+                metaScoreDiff = scoreDiff(prevState.moves, newMoves, prevState.seed)
             }
             
             return {
-                ...metaGame,
+                ...prevState,
                 moves: newMoves,
-                currentGame: metaGame.currentGame + 1,
-                disallowed_time_travels: [metaGame.currentGame],
+                currentGame: prevState.currentGame + 1,
+                disallowed_time_travels: [prevState.currentGame],
                 metaScoreDiff: metaScoreDiff,
-                metaScore: metaGame.metaScore + metaScoreDiff
+                metaScore: prevState.metaScore + metaScoreDiff
             }
         }
         case "REORDER_MOVES": {
-            const newPieces = reorderTyped(metaGame.moves, action.oldIndex, action.newIndex)
-            const metaScoreDiff = 3 * scoreDiff(metaGame.moves, newPieces, metaGame.seed)
-            console.log({in: "metaUpdate->REORDER_MOVES", newPieces, metaGame})
+            const newPieces = reorderTyped(prevState.moves, action.oldIndex, action.newIndex)
+            const metaScoreDiff = 3 * scoreDiff(prevState.moves, newPieces, prevState.seed)
+            console.log({in: "metaUpdate->REORDER_MOVES", newPieces, metaGame: prevState})
             return {
-                ...metaGame,
+                ...prevState,
                 moves: newPieces,
                 currentGame: action.newIndex,
                 disallowed_time_travels: [],
                 metaScoreDiff,
-                metaScore: metaGame.metaScore + metaScoreDiff,
+                metaScore: prevState.metaScore + metaScoreDiff,
             }       
         }
         case "TIME_TRAVEL_TO":{
-            if (metaGame.disallowed_time_travels.includes(action.index)) {
-                return metaGame
+            if (prevState.disallowed_time_travels.includes(action.index)) {
+                return prevState
             }
 
             return {
-                ...metaGame,
+                ...prevState,
                 currentGame: action.index,
                 disallowed_time_travels: [],
                 metaScoreDiff: 0
             }
         }
         case "RESTART":
-            return getEmptyMetaGame()
+            return getEmptyMetaGameState()
         default: {
             console.error({in: "metaUpdate", msg: "can't handle an action type!", action})
             throw new Error("can't handle an action type!")
         }
     }
+}
+
+export function buildMetaStates(metaGame: MetaGame, current: number | null = null): MetaState[] {
+    current ||= metaGame.metaMoves.length
+    let prevState = getEmptyMetaGameState()
+    let metaStates: MetaState[] = []
+    for (const metaMove of metaGame.metaMoves) {
+        const currentState = applyMetaMove(prevState, metaMove)
+        metaStates.push(currentState)
+        prevState = currentState
+    }
+
+    return metaStates
 }
 
 export function buildTetrisState(pieces: PositionedPiece[], current: number, seed: number): Game {
@@ -142,7 +167,7 @@ export function reorderTyped<T>(list: Iterable<T>, startIndex: number, endIndex:
     return reorder(list, startIndex, endIndex)
 };
 
-export function getEmptyMetaGame(): MetaGame {
+export function getEmptyMetaGameState(): MetaState {
     return {
         moves: [],
         currentGame: 0,
@@ -151,4 +176,8 @@ export function getEmptyMetaGame(): MetaGame {
         metaScore: 0,
         metaScoreDiff: 0
     }
+}
+
+export function getEmptyMetaGame(): MetaGame {
+    return {metaMoves: [{action: "RESTART"}]}
 }
