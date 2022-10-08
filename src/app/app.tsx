@@ -16,6 +16,7 @@ import {
 import HorizontalDraggableList from '../draggable-list/HorizontalDraggableList';
 import hash from 'object-hash'
 import ScrollIntoView from './scrollIntoView';
+import { MetaScoreChart } from './ScoreChart';
 
 
 const Container = styled.div`
@@ -97,7 +98,10 @@ export const App = (): JSX.Element => {
                 <br />
                 <Digits>{currentGame.lines}</Digits>
               </p>
-            </div>
+        </div>
+        <div style={{marginLeft: '3%'}}>
+          <MetaScoreChart metaStates={metaStates}/>
+        </div>
       </div>
       <div style={{height: '50%', width: '100%'}}>
         <HorizontalDraggableList 
