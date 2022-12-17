@@ -1,7 +1,7 @@
 import React, { useEffect, useReducer, useRef, useState } from 'react';
 import styled from 'styled-components';
 import Gameboard from '../tetris_lib/components/gameboard';
-import { buildTetrisState, applyMetaMove, getGameboards, getEmptyMetaGameState, MetaGame, metaUpdate, buildMetaStates, MetaState, getEmptyMetaGame } from '../tetris_lib/models/MetaGame';
+import { buildTetrisState, applyMetaMove, getGameboards, getEmptyMetaGameState, MetaGame, metaUpdate, buildMetaStates, MetaState, getEmptyMetaGame, TIME_TRAVEL_ACTIONS, getDebugMetaGame } from '../tetris_lib/models/MetaGame';
 import {Digits, DigitsProps} from './GamePanel';
 import GamePanel from './GamePanel';
 import TypedShell from './TypedShell';
@@ -70,13 +70,14 @@ const SubTitle = styled.h2`
 const TenthScaled = styled.div`{transform: scale(0.3)}`
 
 export const App = (): JSX.Element => {
-  const [metaGame, metaDispatcher] = useReducer(metaUpdate, getEmptyMetaGame())
+  const [metaGame, metaDispatcher] = useReducer(metaUpdate, getDebugMetaGame())
   console.log({in: "app", metaGame})
   const metaStates = buildMetaStates(metaGame)
   const currentMetaState = metaStates[metaStates.length - 1]
   const currentGame = buildTetrisState(currentMetaState.moves, currentMetaState.currentGame, currentMetaState.seed)
   const moves = currentMetaState.moves
   const gameboards = getGameboards(moves)
+  console.log({metaGame, metaStates, currentMetaState, currentGame, moves, gameboards})
   return (
     <div style={{width: '100%', height: '100%', margin: 0, padding: 0, position: 'absolute'}}>
       <div style={{height: '50%', width: '100%', display: 'flex'}}>
@@ -100,7 +101,7 @@ export const App = (): JSX.Element => {
               </p>
         </div>
         <div style={{marginLeft: '3%', width: '50%'}}>
-          <MetaScoreChart metaStates={metaStates}/>
+          <MetaScoreChart metaStates={metaStates} previousTimelineMetaStates={buildPreviousTimeline(metaGame)}/>
         </div>
       </div>
       <div style={{height: '50%', width: '100%'}}>
@@ -130,4 +131,26 @@ function resolve_style(metaState: MetaState, index: number): React.CSSProperties
 function metaScoreDiff(metaStates: MetaState[]): number {
   if (metaStates.length <= 2) return 0
   return metaStates[metaStates.length - 2].metaScore - metaStates[metaStates.length - 1].metaScore
+}
+
+function ImmutableSubArray<T>(a: T[], start: number, end: number): T[] {
+  return a.filter((item, index)=>{
+    return index >= start && index < end ;
+  })
+}
+
+
+function buildPreviousTimeline(metaGame: MetaGame) : MetaState[] | null {
+  const lastTimeTravel = Last(metaGame.metaMoves, move => TIME_TRAVEL_ACTIONS.indexOf(move.action) !== -1)
+  if (lastTimeTravel == null) return null
+  const metaStates = buildMetaStates({...metaGame, metaMoves: ImmutableSubArray(metaGame.metaMoves, 0, lastTimeTravel.index)})
+  return metaStates
+}
+
+function Last<T>(a: T[], predicate: (item: T) => boolean): {item: T, index: number} | null {
+  if (a.length === 0) return null
+  for (let i = a.length - 1; i >= 0; i--){
+    if (predicate(a[i])) return {item: a[i], index: i}
+  }
+  return null
 }

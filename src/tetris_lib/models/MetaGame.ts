@@ -12,6 +12,8 @@ export type MetaAction =
     | {action: "RESTART"}
     | {action: "TIME_TRAVEL_TO", index: number}
 
+export const TIME_TRAVEL_ACTIONS = ["REORDER_MOVES", "TIME_TRAVEL_TO"]
+
 export type MetaGame = {
     metaMoves: MetaAction[],
     // seed: number,
@@ -179,4 +181,22 @@ export function getEmptyMetaGameState(): MetaState {
 
 export function getEmptyMetaGame(): MetaGame {
     return {metaMoves: [{action: "RESTART"}]}
+}
+
+export function getDebugMetaGame(): MetaGame {
+    return {metaMoves: [
+        {action: "RESTART"},
+        // just to ignore the bug in the first state
+        // {action:'DROP_PIECE', piece: {piece: 'I', position: {x:0,y:0}, rotation: 1}}, 
+        // {action:'DROP_PIECE', piece: {piece: 'I', position: {x:6,y:0}, rotation: 1}},
+        // {action:'DROP_PIECE', piece: {piece: 'I', position: {x:0,y:0}, rotation: 1}}, 
+        // {action:'DROP_PIECE', piece: {piece: 'I', position: {x:6,y:0}, rotation: 1}},
+        // {action:'DROP_PIECE', piece:{piece: 'O', position: {x:4,y:0}, rotation: 1}},
+
+        {action:'DROP_PIECE', piece: {piece: 'I', position: {x:0,y:0}, rotation: 1}}, 
+        {action:'DROP_PIECE', piece: {piece: 'I', position: {x:6,y:0}, rotation: 1}},
+        {action:'DROP_PIECE', piece: {piece: 'Z', position: {x:3,y:0}, rotation: 0}},
+        // {action:'REORDER_MOVES', oldIndex: 5, newIndex: 6},
+        {action:'DROP_PIECE', piece:{piece: 'O', position: {x:4,y:0}, rotation: 1}},
+    ]}
 }

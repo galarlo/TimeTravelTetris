@@ -10,6 +10,7 @@ import {
     Tooltip,
     Legend,
     ChartData,
+    ChartDataset,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import { Game } from '../tetris_lib/models/Game';
@@ -38,35 +39,44 @@ export const options = {
     }
 };
 
-export const MetaScoreChart = ({metaStates}: {metaStates: MetaState[]}): JSX.Element => {
+export const MetaScoreChart = ({metaStates, previousTimelineMetaStates}: { metaStates: MetaState[]; previousTimelineMetaStates: MetaState[] | null; }): JSX.Element => {
 
-    return <Line options={options} data={GetData(metaStates)} />
+    return <Line options={options} data={GetData(metaStates, previousTimelineMetaStates)} />
 }
 
 const MAX_CHART_LENGTH = 20
 
-const GetData = (metaStates: MetaState[]): ChartData<"line", number[]> => {
+const GetData = (metaStates: MetaState[], previousTimelineStates: MetaState[] | null): ChartData<"line", number[]> => {
     const latestMetaState = metaStates[metaStates.length - 1]
     const tetrisStates = buildTetrisStateHistory(latestMetaState.moves, latestMetaState.moves.length, latestMetaState.seed)
 
     // console.log({in: 'ScoreChart.GetData', data: TakeLast(tetrisStates, MAX_CHART_LENGTH)})
 
+    let datasets: ChartDataset<"line", number[]>[] = [
+        {
+            label: 'current timeline',
+            data: TakeLast(tetrisStates, MAX_CHART_LENGTH).map(game => game.points),
+            borderColor: 'rgb(255, 99, 132)',
+            backgroundColor: 'rgba(255, 99, 132, 0.5)',
+        }
+    ]
+
+    if (previousTimelineStates != null) {
+        const previousTimelineLastState = previousTimelineStates[previousTimelineStates.length - 1]
+        const prevTimelineTetris = buildTetrisStateHistory(previousTimelineLastState.moves, previousTimelineLastState.moves.length, previousTimelineLastState.seed)
+        const paddedTimeline = PadArray(prevTimelineTetris, tetrisStates.length, null)
+        datasets.push({
+            label: 'previous timeline',
+            data: TakeLast(paddedTimeline, MAX_CHART_LENGTH).map(game => game != null ? game.points : -1),
+            borderColor: 'rgb(53, 162, 235)',
+            backgroundColor: 'rgba(53, 162, 235, 0.5)',
+        })
+        console.log({in: 'ScoreChart.GetData - prev timeline', previousTimelineStates, currentTetris: tetrisStates, prevTetris: prevTimelineTetris, prevtetrisPadded: paddedTimeline, datasets})
+    }
+
     return {
         labels: TakeLast([...Array(tetrisStates.length).keys()], MAX_CHART_LENGTH),
-        datasets: [
-            {
-                label: 'current timeline',
-                data: TakeLast(tetrisStates, MAX_CHART_LENGTH).map(game => game.points),
-                borderColor: 'rgb(255, 99, 132)',
-                backgroundColor: 'rgba(255, 99, 132, 0.5)',
-            },
-            // {
-            //     label: 'previous timeline',
-            //     data: TakeLast(tetrisStates, MAX_CHART_LENGTH).map(game => game.points),
-            //     borderColor: 'rgb(53, 162, 235)',
-            //     backgroundColor: 'rgba(53, 162, 235, 0.5)',
-            // },
-        ],
+        datasets,
     };
 }
 
@@ -82,3 +92,14 @@ function TakeLast<T>(array: T[], n: number) : T[] {
 
     return result
 }
+
+function PadArray<T>(arr: T[],len: number,fill: T): T[] {
+    let padded = [...arr]
+    for (let i = 0; i < arr.length - len; i++)
+    {
+        padded.push(fill)
+    }
+    
+    return padded
+  }
+  
