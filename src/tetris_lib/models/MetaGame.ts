@@ -103,6 +103,7 @@ export function buildTetrisState(pieces: PositionedPiece[], current: number, see
 
 export function buildTetrisStateHistory(pieces: PositionedPiece[], current: number, seed: number): Game[] {
     const emptyTetris = emptyTetrisGame()
+    if (pieces.length > 0) emptyTetris.piece = pieces[0]
     let matrix = emptyTetris.matrix;
     let linesCleared = emptyTetris.lines // 0
     let tetrisStates: Game[] = [emptyTetris]
