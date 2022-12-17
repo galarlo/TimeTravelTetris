@@ -1,5 +1,5 @@
 import { PositionedPiece, buildMatrix, hardDrop, setPiece, isEmptyPosition, Matrix } from './Matrix';
-import { Game, initializePiece, pointsPerLine } from './Game';
+import { Game, initializePiece, pointsPerLine, emptyTetrisGame } from './Game';
 import { Piece, pieces } from './Piece';
 import * as PieceQueue from '../modules/piece-queue';
 import { reorder } from '../../draggable-list/HorizontalDraggableList';
@@ -97,30 +97,39 @@ export function buildMetaStates(metaGame: MetaGame, current: number | null = nul
 }
 
 export function buildTetrisState(pieces: PositionedPiece[], current: number, seed: number): Game {
-    let matrix = buildMatrix();
-    let linesCleared = 0
-    for (const piece of pieces.slice(0, current)) {
+    const history = buildTetrisStateHistory(pieces, current, seed)
+    return history[current]
+}
+
+export function buildTetrisStateHistory(pieces: PositionedPiece[], current: number, seed: number): Game[] {
+    const emptyTetris = emptyTetrisGame()
+    let matrix = emptyTetris.matrix;
+    let linesCleared = emptyTetris.lines // 0
+    let tetrisStates: Game[] = [emptyTetris]
+    for (const piece of pieces) {
         const {newMatrix, linesClearedByMove} = applyTetrisMove(matrix, piece)
         matrix = newMatrix
-        linesCleared += linesClearedByMove   
+        linesCleared += linesClearedByMove
+
+        const currentPiece = current < pieces.length ? pieces[current] : initializePiece(getQueuePieceAt(current, seed))
+        tetrisStates.push({
+            lines: linesCleared,
+            matrix: matrix,
+            heldPiece: undefined,
+            points: linesCleared * pointsPerLine,
+            state: currentPiece === undefined || isEmptyPosition(matrix, currentPiece) ? 'PLAYING' : 'LOST',
+            piece: currentPiece,
+            queue: {
+                queue: pieces.slice(Math.min(pieces.length, current + 1))
+                    .map(positionedPiece => positionedPiece.piece)
+                    .concat(getQueuePieceAt(pieces.length, seed)),
+                bucket: [],
+                minimumLength: 5,
+            }
+        });
     }
     
-    const currentPiece = current < pieces.length ? pieces[current] : initializePiece(getQueuePieceAt(current, seed))
-    return {
-        lines: linesCleared,
-        matrix: matrix,
-        heldPiece: undefined,
-        points: linesCleared * pointsPerLine,
-        state: currentPiece === undefined || isEmptyPosition(matrix, currentPiece) ? 'PLAYING' : 'LOST',
-        piece: currentPiece,
-        queue: {
-            queue: pieces.slice(Math.min(pieces.length, current + 1))
-                .map(positionedPiece => positionedPiece.piece)
-                .concat(getQueuePieceAt(pieces.length, seed)),
-            bucket: [],
-            minimumLength: 5,
-        }
-    }
+    return tetrisStates
 }
 
 function scoreDiff(old: PositionedPiece[], newMoves: PositionedPiece[], seed: number){

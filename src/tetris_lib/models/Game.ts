@@ -52,7 +52,7 @@ export const update = (game: Game, action: Action, metaDispatcher: React.Dispatc
   switch (action) {
     case 'RESTART': {
       metaDispatcher({action: "RESTART"})
-      return init();
+      return emptyTetrisGame();
     }
     case 'PAUSE': {
       return game.state === 'PLAYING' ? { ...game, state: 'PAUSED' } : game;
@@ -172,7 +172,7 @@ const applyMove = (
   return afterFlip ? { ...game, piece: afterFlip } : game;
 };
 
-export const init = (): Game => {
+export const emptyTetrisGame = (): Game => {
   const queue = PieceQueue.create(5);
   const next = PieceQueue.getNext(queue);
   return {
